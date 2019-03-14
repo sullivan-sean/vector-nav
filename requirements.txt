@@ -1,0 +1,7 @@
+scipy==1.2.1
+tqdm==4.28.1
+matplotlib==3.0.3
+namedtensor==0.0.2
+torch==1.0.1
+h5py==2.9.0
+numpy==1.15.2
