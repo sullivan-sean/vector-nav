@@ -10,3 +10,51 @@ by DeepMind to see where the emergence of Grid-Cell like properties emerge.
 So far I have implemented a precursory paper to generate simulated trajectories of rats in various environments as inspired by [Raudies et. al.](https://doi.org/10.1007/s10827-012-0396-6) and the proposed supervised agent from the DeepMind paper.
 
 Next steps will include incorporating this model into the more complex RL agent using DeepMind lab and beginning experimentation.
+
+## Play around with code
+
+To play around with the code here, you can clone the repo
+
+```
+git clone https://github.com/sullivan-sean/vector-nav.git
+pip install -r requirements.txt
+```
+
+You can generate rat trajectories with the following:
+
+```python
+from scene import SquareCage
+from trajectory_simulator import TrajectorySimulator
+
+scene = SquareCage(2.2)
+simulator = TrajectorySimulator(scene)
+simulator.plot_trajectories(N=5)
+```
+
+Other shapes of cages can be found in `scene.py` and you will find many
+parameters that are tunable on the simulator as well, including the angular
+and forward velocities of the rats.
+
+To save trajectories to an hdf5 file and load for training you can use the
+following in addition to the above:
+
+```python
+from dataloader import H5File
+from torch.utils.data import DataLoader
+
+file = H5File('<filename>.hdf5', '<dataset_name>')
+simulator.save(N=1000)
+
+dataset = file.to_dataset()
+dataloader = DataLoader(dataset, batch_size=10, shuffle=True, num_workers=8)
+```
+
+Finally, you can build and train a model with:
+
+```python
+from model import VecNavModel
+from train import train_model
+
+VNM = VecNavModel(12, 256, g_size=512).cuda()
+losses = train_model(VNM, dataloader, lr=1e-5, num_epochs=40)
+```
