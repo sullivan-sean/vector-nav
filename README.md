@@ -13,10 +13,11 @@ Next steps will include incorporating this model into the more complex RL agent 
 
 ## Play around with code
 
-To play around with the code here, you can clone the repo
+To play around with the code here, you can clone the repo and install the requirements
 
 ```
 git clone https://github.com/sullivan-sean/vector-nav.git
+cd vector-nav
 pip install -r requirements.txt
 ```
 
