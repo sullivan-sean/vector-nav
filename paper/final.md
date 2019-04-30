@@ -30,17 +30,17 @@ Besides being an efficient coding mechanism for the information in place and
 head direction cells, it is unclear why this phenomenon arises and whether the
 emergence of these representations are robust to alterations of the model. In
 particular, the robustness of grid-like representations in vector based
-navigation tasks has not been shown for variations in initialization,
-regularization, varied motion models. In this work, I replicate previous models
-that demonstrate the emergence of grid-like neurons but train them under
-various experimental alterations to observe and better understand the
-boundaries of the grid cells’ emergence. Recent work by has shown that
-grid-like representations emerge naturally when training an agent to navigate
-small enclosures under a random motion model [@Banino2018; @Cueva2018].
-To better understand the results of this paper, when they hold and to what
-degree, further experiments on a similar model must be run. I hypothesize that,
-consistent with the results of previous authors, these phenomena will emerge,
-under variations to the models.
+navigation tasks has not been shown for variations in the motion model used
+for training In this work, I replicate previous models that demonstrate the
+emergence of grid-like neurons but train them under experimental alterations to
+the training data to observe and better understand the boundaries of the grid
+cells’ emergence. Recent work by has shown that grid-like representations
+emerge naturally when training an agent to navigate small enclosures under a
+random motion model [@Banino2018; @Cueva2018].  To better understand the
+results of this paper, when they hold and to what degree, further experiments
+on a similar model must be run. I hypothesize that, consistent with the results
+of previous authors, these phenomena will emerge, under variations to the
+trajectories used to train the model.
 
 ## Methods
 
@@ -167,7 +167,7 @@ via connections to the hippocampus [@Zhang2013]. This model, then, has a
 reasonable biological basis related to the mechanisms known to help animals
 path integrate.
 
-## Experiments and Results
+## Experiment and Results
 
 The model implemented by Banino et al. produces grid cells given the model
 architecture described when trained on the trajectories from their own rat
@@ -251,7 +251,8 @@ in the speed at which grid cells emerge. Another interesting finding, however,
 is that after these first grid cells emerged, the model did not improve much
 beyond this point. The loss stayed constant and no more grid cells emerged.
 In contrast, the Deepmind trajectories produced many more grid cells as reported
-intkgg
+in the original paper, with as many as 25% of the units showing grid like
+properties, though this took up to 1000 epochs.
 
 \begin{figure}[!h]
 \centering
@@ -265,14 +266,85 @@ the cells do not improve beyond this point.
 }
 \end{figure}
 
-A second expe
-The cross-entropy loss graph for the two models is shown below
+This phenomenon makes sense given that the model will try to store information
+in the hidden layers as efficiently as possible. If there is a higher density
+and specificity of information uniformly around the enclosure then the model
+could learn a different set of rules. These results ultimately show that the
+model is not robust to changes in trajectory generation. With further
+exploration it could be possible to find a motion model that does not produce
+any grid cells under this model.
 
-# Discussion and Conclusions
+Another interesting phenomena that might help explain this result is the
+following examination of the data. I plotted an example trajectory and
+overlaid on each point in the trajectory, a vector in the rat's current facing
+direction. The magnitude of this vector is directly proportional to the rat's
+forward velocity. In the figure below we can see the comparison for the
+Deepmind trajectories and my own generated trajectories.
 
+\begin{figure}[!h]
+\centering
+\captionsetup{justification=centering}
+\includegraphics[width=.4\linewidth]{../img/traj_generated}
+\includegraphics[width=.4\linewidth]{../img/traj_deepmind}
+\caption{
+The left image shows a trajectory with facing directions at each point for the
+generated trajectories while the right shows the same for the trajectories made
+available publicly by Deepmind. Note how some of the facing directions in the
+latter are perpendicular to the path the rat is taking.
+}
+\end{figure}
 
+We would expect that the facing direction of the rat is tangent or nearly
+tangent to the curve at all points, as this is the direction in which we add
+the velocity to compute the next position of the rat. For the publicly
+available Deepmind trajectories, however, this is not the case. Here, the 
+facing direction is at times orthogonal to the direction the rat is moving in.
+It makes sense, then, that the model is able to utilize the information to more
+rapidly generate grid cells and path integrate with the generated trajectories.
+There must be some information encoded in the Deepmind trajectories, however,
+as this model ultimately outperforms the generated trajectories. Further
+transparency in how Deepmind generated the trajectories would be useful in
+investigating this topic more.
 
-# Bibliography
+## Discussion and Conclusions
+
+Because the model is a neural network, probing the model for causal or
+interpretable results is not feasible. By experimenting with inputs and seeing
+when things break, we can learn more about the emergent phenomena. In this
+case, altering the input to the model resulted in a stark contrast in output.
+Grid cells appeared earlier but there were fewer of them and ultimately, the
+performance of the model suffered. The model used to generate trajectories
+was realistic, with perhaps more intuitive statistics than the trajectories
+used in the source paper. If the trajectories are realistic and the model is
+capable of grid cells emerging, but they do not emerge with these trajectories,
+it is reasonable to ask why they don't emerge or whether a new model ought to
+be introduced to expand upon this.
+
+Other directions for future work include extending this investigation to the
+unsupervised components of the same paper with Deepmind Labs. This, however,
+might be rendered moot by the instability of the model when provided alternate
+motion models. While the model draws some inspiration from neuroscience, it
+would be interesting to see how it behaves under further biological
+constraints. Applying competitive inhibition learning rules or using an
+algorithm other than backpropagation such as feedback alignment could result
+in a more biologically feasible model that is more stable with alternative
+motion. With a learning rule that is more opaque the interpretability of the
+model would also be improved. Rather than observing the "emergence" of
+grid-like representations, we could understand why this phenomena occurs.
+Testing the boundaries of when the model breaks is only the start of this much
+deeper investigation.
+
+## Acknowledgements
+
+I would like to thank Dr. Kenneth Blum for his extensive help and insight in
+this project. Without him I would have lacked the inspiration to push through
+the many roadblocks we have encountered over the course of the semester with
+this project. Thank you!
+
+The code developed for this project can be found at 
+[https://github.com/sullivan-sean/vector-nav](https://github.com/sullivan-sean/vector-nav) 
+
+## Bibliography
 
 \noindent
 \vspace{-2em}
