@@ -1,4 +1,6 @@
 import torch
+import ipykernel
+from namedtensor import ntorch
 
 
 def print_mem():
@@ -9,11 +11,8 @@ def print_mem():
 
 def in_ipynb():
     try:
-        cfg = get_ipython().config
-        if cfg["IPKernelApp"]["parent_appname"] == "ipython-notebook":
-            return True
-        else:
-            return False
+        cfg = get_ipython()
+        return isinstance(cfg, ipykernel.zmqshell.ZMQInteractiveShell)
     except NameError:
         return False
 
@@ -38,3 +37,26 @@ def rotation_matrix(theta):
     top = torch.stack((cos, -sin))
     bot = torch.stack((sin, cos))
     return torch.stack((top, bot))
+
+
+DIMS = [
+    ('batch', 't', 'ax'),
+    ('batch', 't', 'hd'),
+    ('batch', 't', 'input'),
+    ('batch', 'ax'),
+    ('batch', 'hd'),
+]
+
+
+def get_batch(traj, place_cells, hd_cells, dims=None):
+    if dims is None:
+        dims = DIMS
+    ntraj = [ntorch.tensor(i, names=n).cuda() for i, n in zip(traj, dims)]
+    target_pos, target_hd, ego_vel, init_pos, init_hd = ntraj
+    cs, c0 = place_cells(target_pos), place_cells(init_pos)
+    hs, h0 = hd_cells(target_hd), hd_cells(init_hd)
+
+    hs = hs[{'hd': 0}]
+    h0 = h0[{'hd': 0}]
+
+    return cs, hs, ego_vel, c0, h0

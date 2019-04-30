@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 import torch
 from math import pi
 from util import angle_between, unit_vector
@@ -18,7 +19,7 @@ class Scene:
         """Plot the scene"""
         raise NotImplementedError()
 
-    def random(self, n=1):
+    def random(self, n=1, perimeter=0):
         """Return n random points within the scene boundaries"""
         raise NotImplementedError()
 
@@ -43,11 +44,11 @@ class CircularCage(Scene):
         data = unit_vector(ts).numpy() * self.radius
         plt.plot(*data)
 
-    def random(self, n=1):
+    def random(self, n=1, perimeter=0):
         t = 2 * pi * torch.rand(n).float()
         u = torch.rand((n, 2)).sum(dim=1)
         r = torch.where(u > 1, 2 - u, u)
-        return (r * unit_vector(t)).transpose(0, 1) * self.radius
+        return (r * unit_vector(t)).transpose(0, 1) * (self.radius - perimeter)
 
 
 class RectangularCage(Scene):
@@ -58,14 +59,11 @@ class RectangularCage(Scene):
 
     def closestWall(self, pos, direction):
         # Find closest wall to an edge in the rectangle
-        dists = (
-            torch.tensor([self.width / 2, self.height / 2]).reshape(2, 1)
-            - pos.abs()
-        )
+        dists = torch.tensor([self.width, self.height]).reshape(2, 1) / 2 - pos.abs()
         min_dist, ax = dists.min(dim=0)
         signs = pos[ax, torch.arange(pos.shape[1])] > 0
         angle = (3 - 2 * signs.float()) * pi / 2 - (1 - ax.float()) * pi / 2
-        return min_dist, angle_between(unit_vector(angle), direction)
+        return min_dist, angle_between(direction, unit_vector(angle))
 
     def plot(self):
         ws = torch.linspace(-0.5, 0.5, 1000) * self.width
@@ -77,10 +75,9 @@ class RectangularCage(Scene):
         ys = torch.cat([h2s, hs.flip(0), -h2s, hs]).numpy()
         plt.plot(xs, ys)
 
-    def random(self, n=1):
-        return (torch.rand((n, 2)) - 0.5) * torch.tensor(
-            [[self.height, self.width]]
-        ).float()
+    def random(self, n=1, perimeter=0):
+        lims = np.array([self.height, self.width]) / 2 - perimeter
+        return torch.tensor(np.random.uniform(-lims, lims, (n, 2))).float()
 
 
 class SquareCage(RectangularCage):
