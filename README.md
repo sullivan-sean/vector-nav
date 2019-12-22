@@ -20,8 +20,7 @@ git clone https://github.com/sullivan-sean/vector-nav.git
 cd vector-nav
 pip install -r requirements.txt
 ```
-
-You can generate rat trajectories with the following:
+Training the pytorch model can be done as follows. First you can generate rat trajectories as below:
 
 ```python
 from scene import SquareCage
@@ -59,3 +58,5 @@ from train import train_model
 VNM = VecNavModel(12, 256, g_size=512).cuda()
 losses = train_model(VNM, dataloader, lr=1e-5, num_epochs=40)
 ```
+
+The PyTorch model does _not_ produce grid cells as the tensorflow model does. This is a problem I have been struggling to solve since the sixth week of the semester. To try and remedy this problem, I implemented the model from scratch 3 times, played around with various trajectory motion models, transferred Deepmind's trajectories to a PyTorch readable format, transferred my trajectories to a tensorflow compatible format, altered initialization and regularization, and even copied weights from the tensorflow model directly into the PyTorch model to ensure identical intialization. At its core, the problem seems to be either human error on my part, or a difference deep within in PyTorch and Tensorflow and their optimization strategies. The results in my paper come from the modified tensorflow model, which takes after the released code from Deepmind.
