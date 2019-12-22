@@ -48,7 +48,7 @@ DIMS = [
 ]
 
 
-def get_batch(traj, place_cells, hd_cells, dims=None):
+def get_batch(traj, place_cells, hd_cells, dims=None, pos=False):
     if dims is None:
         dims = DIMS
     ntraj = [ntorch.tensor(i, names=n).cuda() for i, n in zip(traj, dims)]
@@ -58,5 +58,8 @@ def get_batch(traj, place_cells, hd_cells, dims=None):
 
     hs = hs[{'hd': 0}]
     h0 = h0[{'hd': 0}]
+
+    if pos:
+        return cs, hs, ego_vel, c0, h0, target_pos
 
     return cs, hs, ego_vel, c0, h0
